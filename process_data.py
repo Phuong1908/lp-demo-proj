@@ -1,8 +1,9 @@
 import os
+from constants import DATA_DIR
 
 def process(filename):
   with open(f'Datasets/raw/{filename}') as f:
-    with open(f'Datasets/processed/{filename}','w+') as output_f:
+    with open(f'{DATA_DIR}{filename}','w+') as output_f:
       first_line = f.readline()
       output_f.write(first_line.strip() + '\n') # write matrix dimension at the first line
       num_of_col = int(process_line(first_line)[1])
