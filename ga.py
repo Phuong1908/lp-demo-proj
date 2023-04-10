@@ -26,13 +26,21 @@ class Chromosome:
   def calc_fitness(self):
     return -(self.calc_error() + self.calc_cost())
   
-  @classmethod
-  def crossover(cls):
-    return
+  def mutation(self):
+    #simple invert mutation
+    start_index = random.randint(0, self.length - 1)
+    end_index = random.randint(0, self.length - 1)
+    if start_index > end_index:
+      start_index, end_index = end_index, start_index
+    while start_index < end_index:
+      self.bit_arr[start_index], self.bit_arr[end_index] = self.bit_arr[end_index], self.bit_arr[start_index]
+      start_index +=1
+      end_index -= 1
   
   @classmethod
-  def mutation(cls):
-    return
+  def crossover(cls, chromo_1, chromo_2):
+    cut_point = random.randint(0, chromo_1.length - 1)
+    
     
 class Population:
   def __init__(self):
