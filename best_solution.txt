@@ -91,21 +91,3 @@ scpcyc08 344
 scpcyc09 780
 scpcyc10 1792
 scpcyc11 4103
-
-rail507 174
-rail516 182
-rail582 211
-rail2536 691
-rail2586 948
-rail4284 1065
-rail4872 1534
-
-stn9 5
-stn15 9
-stn27 18
-stn45 30
-stn81 61
-stn135 103
-stn243 198
-stn405 335
-stn729 617
