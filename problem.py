@@ -2,8 +2,8 @@ from ga import Individual
 class Problem:
   def __init__(self, name, m, n, costs, row_covered_list, optimal_sol = None):
     self.name = name
-    self.m = m
-    self.n = n
+    self.m = m #num of row
+    self.n = n #num of col
     self.costs = costs
     self.row_covered_list = row_covered_list
     self.optimal_sol = optimal_sol

@@ -1,7 +1,8 @@
 import numpy as np
 import random
 from utils import intersection
-from constants import ALPHA, POPULATION_SIZE, TOURNAMENT_PARTICIPANT
+from constants import ALPHA, POPULATION_SIZE
+
 class Individual:
   def __init__(self, length):
     self.length = length
@@ -26,9 +27,9 @@ class Individual:
     return ALPHA*uncovered_count*max_cost
     
   def calc_fitness(self): #aim to maximize fitness <-> minimize cost
-    return -(self.calc_error() + self.calc_cost())
+    self.fitness =  -(self.calc_error() + self.calc_cost())
   
-  def mutation(self):
+  def mutate(self):
     #simple invert mutation
     start_index = random.randint(0, self.length - 1)
     end_index = random.randint(0, self.length - 1)
@@ -63,28 +64,39 @@ class Population:
   def append(self, new_individual):
     self.population.append(new_individual)
     
-  def ranking_selections(self):
-    rd_num = random.random()
-    
+  def roulette_wheel_selection(self):
+    max = sum([c.fitness for c in self.population])
+    selection_probs = [c.fitness/max for c in self.population]
+    return self.population[np.random.choice(len(self.population), p=selection_probs)]
   
-  def __cal_prob(self):
-    rank_sum = POPULATION_SIZE * (POPULATION_SIZE + 1) / 2
-    population_fitness = map(lambda indi: indi.fitness , self.population)
-    for rank, ind_fitness in enumerate(sorted(population_fitness), 1):
-      yield rank, ind_fitness, float(rank) / rank_sum
+  # def __cal_prob(self):
+  #   rank_sum = POPULATION_SIZE * (POPULATION_SIZE + 1) / 2
+  #   population_fitness = map(lambda indi: indi.fitness , self.population)
+  #   for rank, ind_fitness in enumerate(sorted(population_fitness), 1):
+  #     yield rank, ind_fitness, float(rank) / rank_sum
       
   def create_child(self):
     children = []
     while len(children) < POPULATION_SIZE:
-      parent1 = self.__tournament(population)
+      parent1 = self.roulette_wheel_selection(self.population)
       parent2 = parent1
       while parent1 == parent2:
-          parent2 = self.__tournament(population)
-      child1, child2 = self.__crossover(parent1, parent2)
-      self.__mutate(child1)
-      self.__mutate(child2)
+          parent2 = self.roulette_wheel_selection(self.population)
+      child1, child2 = self.roulette_wheel_selection(parent1, parent2)
+      child1.mutate()
+      child2.mutate()
+      child1.calc_fitness()
+      child2.calc_fitness()
       self.problem.calculate_objectives(child1)
       self.problem.calculate_objectives(child2)
       children.append(child1)
       children.append(child2)
-
+  
+  @staticmethod
+  def create_initial_population(problem):
+    population = Population()
+    for _ in range(POPULATION_SIZE):
+      individual = Individual(length=problem.n)
+      individual.calc_fitness()
+      population.append(individual)
+    return population
