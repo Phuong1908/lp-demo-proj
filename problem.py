@@ -1,3 +1,4 @@
+from ga import Individual
 class Problem:
   def __init__(self, name, m, n, costs, row_covered_list, optimal_sol = None):
     self.name = name
@@ -9,3 +10,7 @@ class Problem:
   
   def set_optimal_sol(self, value):
     self.optimal_sol = value
+
+  def generate_individual(self):
+    individual = Individual(length=self.n)
+    return individual
