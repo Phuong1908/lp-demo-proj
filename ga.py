@@ -6,7 +6,7 @@ from constants import ALPHA, POPULATION_SIZE
 class Individual:
   def __init__(self, length):
     self.length = length
-    self.features = np.array([random.randint(0, 1) for _ in length])
+    self.features = np.array([random.randint(0, 1) for _ in range(0,length)])
     self.rank = None
     self.fitness = None
   
@@ -21,13 +21,13 @@ class Individual:
         count += 1
     return count
   
-  def calc_error(self, cost_list):
+  def calc_error(self, cost_list, row_covered_list):
     max_cost = np.max(np.matmul(self.features, cost_list))
-    uncovered_count = self.get_uncovered_count()
+    uncovered_count = self.get_uncovered_count(row_covered_list=row_covered_list)
     return ALPHA*uncovered_count*max_cost
     
-  def calc_fitness(self): #aim to maximize fitness <-> minimize cost
-    self.fitness =  1 / (self.calc_error() + self.calc_cost() + 1)
+  def calc_fitness(self, cost_list, row_covered_list): #aim to maximize fitness <-> minimize cost
+    self.fitness =  1 / (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.calc_cost(cost_list=cost_list) + 1)
   
   def mutate(self):
     #simple invert mutation
@@ -44,13 +44,18 @@ class Individual:
   def crossover(individual_1, individual_2):
     length = len(individual_1.features)
     cut_point = random.randint(0, length - 1)
-    first_child = np.concatenate(individual_1.features[0:cut_point], individual_2.features[cut_point:length])
-    second_child = np.concatenate(individual_2.features[0:cut_point], individual_1.features[cut_point:length])
+    # import pdb;pdb.set_trace()
+    first_child = Individual(length=length)
+    second_child = Individual(length=length)
+    first_child.features = np.append(individual_1.features[0:cut_point], individual_2.features[cut_point:length])
+    second_child.features = np.append(individual_2.features[0:cut_point], individual_1.features[cut_point:length])
     return first_child, second_child
     
 class Population:
   def __init__(self):
     self.population = []
+    self.cost_list = None
+    self.row_covered_list = None
 
   def __len__(self):
     return len(self.population)
@@ -78,30 +83,30 @@ class Population:
   def create_child(self):
     children = []
     while len(children) < POPULATION_SIZE:
-      parent1 = self.roulette_wheel_selection(self.population)
+      parent1 = self.roulette_wheel_selection()
       parent2 = parent1
       while parent1 == parent2:
-          parent2 = self.roulette_wheel_selection(self.population)
-      child1, child2 = self.roulette_wheel_selection(parent1, parent2)
+          parent2 = self.roulette_wheel_selection()
+      child1, child2 = Individual.crossover(parent1, parent2)
       child1.mutate()
       child2.mutate()
-      child1.calc_fitness()
-      child2.calc_fitness()
-      self.problem.calculate_objectives(child1)
-      self.problem.calculate_objectives(child2)
+      child1.calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
+      child2.calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
       children.append(child1)
       children.append(child2)
+    return children
       
   def get_best(self):
-    sorted_pop = sorted(self.population, key=lambda x: x.fitness)
-    return sorted_pop.last()
+    sorted_pop = sorted(self.population, key=lambda x: x.fitness, reverse=True)
+    return sorted_pop[0]
     
-  
   @staticmethod
   def create_initial_population(problem):
     population = Population()
+    population.cost_list = problem.costs
+    population.row_covered_list = problem.row_covered_list
     for _ in range(POPULATION_SIZE):
       individual = Individual(length=problem.n)
-      individual.calc_fitness()
+      individual.calc_fitness(cost_list=population.cost_list, row_covered_list=population.row_covered_list)
       population.append(individual)
     return population
