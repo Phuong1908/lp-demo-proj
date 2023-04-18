@@ -27,7 +27,7 @@ class Individual:
     return ALPHA*uncovered_count*max_cost
     
   def calc_fitness(self): #aim to maximize fitness <-> minimize cost
-    self.fitness =  -(self.calc_error() + self.calc_cost())
+    self.fitness =  1 / (self.calc_error() + self.calc_cost() + 1)
   
   def mutate(self):
     #simple invert mutation
@@ -91,6 +91,11 @@ class Population:
       self.problem.calculate_objectives(child2)
       children.append(child1)
       children.append(child2)
+      
+  def get_best(self):
+    sorted_pop = sorted(self.population, key=lambda x: x.fitness)
+    return sorted_pop.last()
+    
   
   @staticmethod
   def create_initial_population(problem):
