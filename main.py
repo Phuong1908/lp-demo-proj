@@ -1,5 +1,6 @@
 from tqdm import tqdm
 import argparse
+import copy
 from ga import Population
 from utils import build_problem
 from constants import GENERATIONS, POPULATION_SIZE
@@ -19,7 +20,7 @@ if __name__ == "__main__":
     children = population.create_child()
     # import pdb;pdb.set_trace()
     population.extend(children)
-    new_population = Population()
+    new_population = copy.copy(population)
     local_best_indi = population.get_best()
 		# evaluate phase
     new_population.extend(sorted(population.population, key=lambda x: x.fitness, reverse=True)[0:POPULATION_SIZE])

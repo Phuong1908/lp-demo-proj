@@ -22,9 +22,12 @@ class Individual:
     return count
   
   def calc_error(self, cost_list, row_covered_list):
-    max_cost = np.max(np.matmul(self.features, cost_list))
-    uncovered_count = self.get_uncovered_count(row_covered_list=row_covered_list)
-    return ALPHA*uncovered_count*max_cost
+    try:
+      max_cost = np.max(np.matmul(self.features, cost_list))
+      uncovered_count = self.get_uncovered_count(row_covered_list=row_covered_list)
+      return ALPHA*uncovered_count*max_cost
+    except:
+      import pdb;pdb.set_trace()
     
   def calc_fitness(self, cost_list, row_covered_list): #aim to maximize fitness <-> minimize cost
     self.fitness =  1 / (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.calc_cost(cost_list=cost_list) + 1)
