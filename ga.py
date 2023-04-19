@@ -22,12 +22,9 @@ class Individual:
     return count
   
   def calc_error(self, cost_list, row_covered_list):
-    try:
-      max_cost = np.max(np.matmul(self.features, cost_list))
-      uncovered_count = self.get_uncovered_count(row_covered_list=row_covered_list)
-      return ALPHA*uncovered_count*max_cost
-    except:
-      import pdb;pdb.set_trace()
+    max_cost = np.max(np.matmul(self.features, cost_list))
+    uncovered_count = self.get_uncovered_count(row_covered_list=row_covered_list)
+    return ALPHA*uncovered_count*max_cost
     
   def calc_fitness(self, cost_list, row_covered_list): #aim to maximize fitness <-> minimize cost
     self.fitness =  1 / (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.calc_cost(cost_list=cost_list) + 1)
@@ -47,7 +44,6 @@ class Individual:
   def crossover(individual_1, individual_2):
     length = len(individual_1.features)
     cut_point = random.randint(0, length - 1)
-    # import pdb;pdb.set_trace()
     first_child = Individual(length=length)
     second_child = Individual(length=length)
     first_child.features = np.append(individual_1.features[0:cut_point], individual_2.features[cut_point:length])
