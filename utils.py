@@ -17,7 +17,7 @@ def build_problem(name):
       if not line.strip(): #remove empty line
           continue
       row_covered_list.append(np.array(line.split(' '),int))
-  problem =  Problem(name, int(dims[0]), int(dims[1]), costs, row_covered_list)
+  problem = Problem(name, int(dims[0]), int(dims[1]), costs, row_covered_list)
   problem.set_optimal_sol(load_solution(name))
   return problem
     

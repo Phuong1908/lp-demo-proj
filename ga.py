@@ -18,19 +18,21 @@ class Individual:
   
   def get_uncovered_count(self, row_covered_list):
     count = 0
-    self_cover_rows = np.where(self.features == 1)
+    self_cover_row_indexes = np.where(self.features == 1) #return tuple
+    self_cover_rows = list(map(lambda x: x + 1, self_cover_row_indexes[0]))
     for row_covered_data in row_covered_list:
-      if intersection(self_cover_rows, row_covered_data):
+      if not intersection(self_cover_rows, row_covered_data):
         count += 1
     return count
   
   def calc_error(self, cost_list, row_covered_list):
-    max_cost = np.max(np.matmul(self.features, cost_list))
+    max_cost = np.max(np.multiply(self.features, cost_list))
     uncovered_count = self.get_uncovered_count(row_covered_list=row_covered_list)
     return ALPHA*uncovered_count*max_cost
     
   def calc_fitness(self, cost_list, row_covered_list): #aim to maximize fitness <-> minimize cost
-    self.fitness =  1 / (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.calc_cost(cost_list=cost_list) + 1)
+    max_cost_value = np.max(cost_list) 
+    self.fitness =  max_cost_value * self.length - (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.calc_cost(cost_list=cost_list) + 1)
   
   def mutate(self):
     #simple invert mutation
