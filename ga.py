@@ -10,6 +10,9 @@ class Individual:
     self.rank = None
     self.fitness = None
   
+  def __str__(self):
+    return ','.join(map(str, self.features))
+  
   def calc_cost(self, cost_list):
     return np.dot(self.features, cost_list)
   
