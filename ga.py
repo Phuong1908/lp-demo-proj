@@ -30,17 +30,17 @@ class Individual:
     uncovered_count = self.get_uncovered_count(row_covered_list=row_covered_list)
     return ALPHA*uncovered_count*max_cost
     
-  # def calc_fitness(self, cost_list, row_covered_list): #aim to maximize fitness <-> minimize cost
-  #   max_cost_value = np.sum(cost_list) 
-  #   fitness_value = max_cost_value - (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.calc_cost(cost_list=cost_list))
-  #   if fitness_value < 0:
-  #     fitness_value = 0
-  #   self.fitness = fitness_value
-  
   def calc_fitness(self, cost_list, row_covered_list): #aim to maximize fitness <-> minimize cost
-    self.fitness =  1 / (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.calc_cost(cost_list=cost_list) + 1)
+    max_cost_value = np.sum(cost_list) 
+    fitness_value = max_cost_value - (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.calc_cost(cost_list=cost_list))
+    if fitness_value < 0:
+      fitness_value = 0
+    self.fitness = fitness_value
+  
+  # def calc_fitness(self, cost_list, row_covered_list): #aim to maximize fitness <-> minimize cost
+  #   self.fitness =  1 / (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.calc_cost(cost_list=cost_list) + 1)
     
-  def mutate(self):
+  def simple_invert_mutate(self):
     #simple invert mutation
     start_index = random.randint(0, self.length - 1)
     end_index = random.randint(0, self.length - 1)
@@ -50,10 +50,11 @@ class Individual:
       self.features[start_index], self.features[end_index] = self.features[end_index], self.features[start_index]
       start_index +=1
       end_index -= 1
-  
-  def mutate_with_prob(self):
-    if random.random() <= MUTATION_PROB:
-      self.mutate()
+      
+  def random_flip_mutate(self):
+    for i in range(self.length):
+      if random.random() < MUTATION_PROB:
+        self.features[i] = 1 - self.features[i]
   
   @staticmethod
   def crossover(individual_1, individual_2):
@@ -114,8 +115,8 @@ class Population:
       while parent1 == parent2:
           parent2 = self.tournament_selection()
       child1, child2 = Individual.crossover(parent1, parent2)
-      child1.mutate_with_prob()
-      child2.mutate_with_prob()
+      child1.simple_invert_mutate()
+      child2.simple_invert_mutate()
       child1.calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
       child2.calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
       children.append(child1)
