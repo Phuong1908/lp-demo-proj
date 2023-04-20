@@ -31,9 +31,12 @@ class Individual:
     return ALPHA*uncovered_count*max_cost
     
   def calc_fitness(self, cost_list, row_covered_list): #aim to maximize fitness <-> minimize cost
-    max_cost_value = np.max(cost_list) 
-    self.fitness =  max_cost_value * self.length - (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.calc_cost(cost_list=cost_list) + 1)
-  
+    max_cost_value = np.sum(cost_list) 
+    fitness_value = max_cost_value - (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.calc_cost(cost_list=cost_list))
+    if fitness_value < 0:
+      fitness_value = 0
+    self.fitness = fitness_value
+    
   def mutate(self):
     #simple invert mutation
     start_index = random.randint(0, self.length - 1)
@@ -101,9 +104,12 @@ class Population:
     return children
       
   def get_best(self):
+    # return the best feasibile solution
     sorted_pop = sorted(self.population, key=lambda x: x.fitness, reverse=True)
-    return sorted_pop[0]
-    
+    for individual in sorted_pop:
+      if individual.get_uncovered_count(row_covered_list=self.row_covered_list) == 0:
+        return individual
+      
   @staticmethod
   def create_initial_population(problem):
     population = Population()
