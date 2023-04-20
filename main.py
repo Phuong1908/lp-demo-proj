@@ -25,5 +25,7 @@ if __name__ == "__main__":
     best_invi = new_population[0]
     population.population = new_population
     print(f'Best individual of gen {i} has cost: {best_invi.calc_cost(cost_list=problem.costs)}')
+  best_feasible = population.get_best()
+  print(f'Best feasible solution has cost: {best_feasible.calc_cost(cost_list=problem.costs)}')  
   print(f'Optimal cost is {problem.optimal_sol}')
     
