@@ -30,12 +30,15 @@ class Individual:
     uncovered_count = self.get_uncovered_count(row_covered_list=row_covered_list)
     return ALPHA*uncovered_count*max_cost
     
+  # def calc_fitness(self, cost_list, row_covered_list): #aim to maximize fitness <-> minimize cost
+  #   max_cost_value = np.sum(cost_list) 
+  #   fitness_value = max_cost_value - (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.calc_cost(cost_list=cost_list))
+  #   if fitness_value < 0:
+  #     fitness_value = 0
+  #   self.fitness = fitness_value
+  
   def calc_fitness(self, cost_list, row_covered_list): #aim to maximize fitness <-> minimize cost
-    max_cost_value = np.sum(cost_list) 
-    fitness_value = max_cost_value - (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.calc_cost(cost_list=cost_list))
-    if fitness_value < 0:
-      fitness_value = 0
-    self.fitness = fitness_value
+    self.fitness =  1 / (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.calc_cost(cost_list=cost_list) + 1)
     
   def mutate(self):
     #simple invert mutation
