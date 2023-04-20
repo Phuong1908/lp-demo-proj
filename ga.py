@@ -1,7 +1,7 @@
 import numpy as np
 import random
 from utils import intersection
-from constants import ALPHA, POPULATION_SIZE
+from constants import ALPHA, POPULATION_SIZE, TOURNAMENT_PARTICIPANTS, TOURNAMENT_SELECTION_PROB
 
 class Individual:
   def __init__(self, length):
@@ -81,6 +81,18 @@ class Population:
     selection_probs = [c.fitness/max for c in self.population]
     return self.population[np.random.choice(len(self.population), p=selection_probs)]
   
+  def tournament_selection(self):
+    participants = random.sample(self.population, TOURNAMENT_PARTICIPANTS)
+    sorted_participants = sorted(participants, key=lambda x: x.fitness, reverse=True)
+    for participant in sorted_participants:
+      if self.__choose_with_prob():
+          return participant
+  
+  def __choose_with_prob(self):
+    if random.random() <= TOURNAMENT_SELECTION_PROB:
+      return True
+    return False
+  
   # def __cal_prob(self):
   #   rank_sum = POPULATION_SIZE * (POPULATION_SIZE + 1) / 2
   #   population_fitness = map(lambda indi: indi.fitness , self.population)
@@ -90,10 +102,10 @@ class Population:
   def create_child(self):
     children = []
     while len(children) < POPULATION_SIZE:
-      parent1 = self.roulette_wheel_selection()
+      parent1 = self.tournament_selection()
       parent2 = parent1
       while parent1 == parent2:
-          parent2 = self.roulette_wheel_selection()
+          parent2 = self.tournament_selection()
       child1, child2 = Individual.crossover(parent1, parent2)
       child1.mutate()
       child2.mutate()

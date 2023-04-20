@@ -20,7 +20,7 @@ if __name__ == "__main__":
 		# evolution phase
     children = population.create_child()
     population.extend(children)
-		# evaluate phase
+		# evaluation phase
     new_population = (sorted(population.population, key=lambda x: x.fitness, reverse=True)[0:POPULATION_SIZE])
     best_invi = new_population[0]
     population.population = new_population
