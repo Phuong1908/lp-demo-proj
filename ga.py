@@ -1,7 +1,7 @@
 import numpy as np
 import random
 from utils import intersection
-from constants import ALPHA, POPULATION_SIZE, TOURNAMENT_PARTICIPANTS, TOURNAMENT_SELECTION_PROB
+from constants import ALPHA, POPULATION_SIZE, TOURNAMENT_PARTICIPANTS, TOURNAMENT_SELECTION_PROB, MUTATION_PROB
 
 class Individual:
   def __init__(self, length):
@@ -47,6 +47,10 @@ class Individual:
       self.features[start_index], self.features[end_index] = self.features[end_index], self.features[start_index]
       start_index +=1
       end_index -= 1
+  
+  def mutate_with_prob(self):
+    if random.random() <= MUTATION_PROB:
+      self.mutate()
   
   @staticmethod
   def crossover(individual_1, individual_2):
@@ -107,8 +111,8 @@ class Population:
       while parent1 == parent2:
           parent2 = self.tournament_selection()
       child1, child2 = Individual.crossover(parent1, parent2)
-      child1.mutate()
-      child2.mutate()
+      child1.mutate_with_prob()
+      child2.mutate_with_prob()
       child1.calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
       child2.calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
       children.append(child1)
