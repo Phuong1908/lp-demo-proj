@@ -10,12 +10,14 @@ class Individual:
     self.features = np.array([random.randint(0, 1) for _ in range(0,length)])
     self.rank = None
     self.fitness = None
+    self.cost = None
+    self.uncovered_count = None
   
   def __str__(self):
     return ','.join(map(str, self.features))
   
   def calc_cost(self, cost_list):
-    return np.dot(self.features, cost_list)
+    self.cost = np.dot(self.features, cost_list)
   
   def get_uncovered_count(self, row_covered_list):
     count = 0
@@ -24,16 +26,17 @@ class Individual:
     for row_covered_data in row_covered_list:
       if not intersection(self_cover_rows, row_covered_data):
         count += 1
-    return count
+    self.uncovered_count = count
   
   def calc_error(self, cost_list, row_covered_list):
     max_cost = np.max(np.multiply(self.features, cost_list))
-    uncovered_count = self.get_uncovered_count(row_covered_list=row_covered_list)
-    return ALPHA*uncovered_count*max_cost
+    self.get_uncovered_count(row_covered_list)
+    return ALPHA*self.uncovered_count*max_cost
     
   def calc_fitness(self, cost_list, row_covered_list): #aim to maximize fitness <-> minimize cost
-    max_cost_value = np.sum(cost_list) 
-    fitness_value = max_cost_value - (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.calc_cost(cost_list=cost_list))
+    max_cost_value = np.sum(cost_list)
+    self.calc_cost(cost_list)
+    fitness_value = max_cost_value - (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.cost)
     if fitness_value < 0:
       fitness_value = 0
     self.fitness = fitness_value
@@ -66,9 +69,9 @@ class Individual:
       start_point = random.randint(0, self.length - 1)
       mutated_range = NUM_OF_MUTATED_GENES
       if start_point + NUM_OF_MUTATED_GENES > self.length:
-        mutated_range = self.length - start_point + 1
+        mutated_range = self.length - start_point
       for i in range(0, mutated_range):
-        self.features[start_point + i] = 1 - self.features[i]
+        self.features[start_point + i] = 1 - self.features[start_point + i]
   
   @staticmethod
   def crossover(individual_1, individual_2):
@@ -92,7 +95,7 @@ class Individual:
       first_cut_point, second_cut_point = second_cut_point, first_cut_point
 
     first_child = copy.deepcopy(individual_1)
-    second_child =  copy.deepcopy(individual_2)
+    second_child = copy.deepcopy(individual_2)
     
     for i in range(first_cut_point, second_cut_point):
       first_child.features[i], second_child.features[i] = second_child.features[i], first_child.features[i]
@@ -125,13 +128,9 @@ class Population:
     participants = random.sample(self.population, TOURNAMENT_PARTICIPANTS)
     sorted_participants = sorted(participants, key=lambda x: x.fitness, reverse=True)
     for participant in sorted_participants:
-      if self.__choose_with_prob():
+      if random.random() <= TOURNAMENT_SELECTION_PROB:
           return participant
-  
-  def __choose_with_prob(self):
-    if random.random() <= TOURNAMENT_SELECTION_PROB:
-      return True
-    return False
+    return sorted_participants[0]
   
   # def __cal_prob(self):
   #   rank_sum = POPULATION_SIZE * (POPULATION_SIZE + 1) / 2
@@ -143,10 +142,10 @@ class Population:
     children = []
     while len(children) < POPULATION_SIZE:
       parent1 = self.tournament_selection()
-      parent2 = parent1
-      while parent1 == parent2:
+      parent2 = None
+      while parent2 == parent1 or parent2 is None:
           parent2 = self.tournament_selection()
-      child1, child2 = Individual.two_points_crossover(parent1, parent2)
+      child1, child2 = Individual.crossover(parent1, parent2)
       child1.random_flip_mutate_in_range()
       child2.random_flip_mutate_in_range()
       child1.calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
@@ -172,3 +171,8 @@ class Population:
       individual.calc_fitness(cost_list=population.cost_list, row_covered_list=population.row_covered_list)
       population.append(individual)
     return population
+  
+  def print(self):
+    for individual in self.population:
+      print(individual.cost)
+    print("======")

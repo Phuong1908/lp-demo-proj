@@ -24,8 +24,8 @@ if __name__ == "__main__":
     new_population = (sorted(population.population, key=lambda x: x.fitness, reverse=True)[0:POPULATION_SIZE])
     best_invi = new_population[0]
     population.population = new_population
-    print(f'Best individual of gen {i} has cost: {best_invi.calc_cost(cost_list=problem.costs)}')
+    print(f'Best individual of gen {i} has cost: {best_invi.cost}')
   best_feasible = population.get_best()
-  print(f'Best feasible solution has cost: {best_feasible.calc_cost(cost_list=problem.costs)}')  
+  print(f'Best feasible solution has cost: {best_feasible.cost}')  
   print(f'Optimal cost is {problem.optimal_sol}')
     
