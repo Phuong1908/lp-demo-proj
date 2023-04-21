@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import copy
 from utils import intersection
 from constants import ALPHA, POPULATION_SIZE, TOURNAMENT_PARTICIPANTS, TOURNAMENT_SELECTION_PROB, MUTATION_PROB
 
@@ -65,6 +66,26 @@ class Individual:
     first_child.features = np.append(individual_1.features[0:cut_point], individual_2.features[cut_point:length])
     second_child.features = np.append(individual_2.features[0:cut_point], individual_1.features[cut_point:length])
     return first_child, second_child
+  
+  @staticmethod
+  def two_points_crossover(individual_1, individual_2):
+    length = len(individual_1.features)
+    first_cut_point = random.randint(0, length - 1)
+    second_cut_point = first_cut_point
+    
+    while second_cut_point == first_cut_point:
+      second_cut_point = random.randint(0, length - 1)
+    if first_cut_point > second_cut_point:
+      first_cut_point, second_cut_point = second_cut_point, first_cut_point
+      
+    print(f'cut points: {first_cut_point} and {second_cut_point}')
+
+    first_child = copy.deepcopy(individual_1)
+    second_child =  copy.deepcopy(individual_2)
+    
+    for i in range(first_cut_point, second_cut_point):
+      first_child.features[i], second_child.features[i] = second_child.features[i], first_child.features[i]
+    return first_child, second_child
     
 class Population:
   def __init__(self):
@@ -115,8 +136,8 @@ class Population:
       while parent1 == parent2:
           parent2 = self.tournament_selection()
       child1, child2 = Individual.crossover(parent1, parent2)
-      child1.simple_invert_mutate()
-      child2.simple_invert_mutate()
+      child1.random_flip_mutate()
+      child2.random_flip_mutate()
       child1.calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
       child2.calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
       children.append(child1)
