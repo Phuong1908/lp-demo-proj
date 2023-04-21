@@ -52,6 +52,10 @@ class Individual:
       start_index +=1
       end_index -= 1
       
+  def simple_invert_mutate_with_prob(self):
+    if random.random() < MUTATION_PROB:
+        self.simple_invert_mutate()
+      
   def random_flip_mutate(self):
     for i in range(self.length):
       if random.random() < MUTATION_PROB:
@@ -77,8 +81,6 @@ class Individual:
       second_cut_point = random.randint(0, length - 1)
     if first_cut_point > second_cut_point:
       first_cut_point, second_cut_point = second_cut_point, first_cut_point
-      
-    print(f'cut points: {first_cut_point} and {second_cut_point}')
 
     first_child = copy.deepcopy(individual_1)
     second_child =  copy.deepcopy(individual_2)
@@ -135,9 +137,9 @@ class Population:
       parent2 = parent1
       while parent1 == parent2:
           parent2 = self.tournament_selection()
-      child1, child2 = Individual.crossover(parent1, parent2)
-      child1.random_flip_mutate()
-      child2.random_flip_mutate()
+      child1, child2 = Individual.two_points_crossover(parent1, parent2)
+      child1.simple_invert_mutate_with_prob()
+      child2.simple_invert_mutate_with_prob()
       child1.calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
       child2.calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
       children.append(child1)
