@@ -2,7 +2,7 @@ import numpy as np
 import random
 import copy
 from utils import intersection
-from constants import ALPHA, POPULATION_SIZE, TOURNAMENT_PARTICIPANTS, TOURNAMENT_SELECTION_PROB, MUTATION_PROB
+from constants import ALPHA, POPULATION_SIZE, TOURNAMENT_PARTICIPANTS, TOURNAMENT_SELECTION_PROB, MUTATION_PROB, NUM_OF_MUTATED_GENES
 
 class Individual:
   def __init__(self, length):
@@ -60,6 +60,15 @@ class Individual:
     for i in range(self.length):
       if random.random() < MUTATION_PROB:
         self.features[i] = 1 - self.features[i]
+  
+  def random_flip_mutate_in_range(self):
+    if random.random() < MUTATION_PROB:
+      start_point = random.randint(0, self.length - 1)
+      mutated_range = NUM_OF_MUTATED_GENES
+      if start_point + NUM_OF_MUTATED_GENES > self.length:
+        mutated_range = self.length - start_point + 1
+      for i in range(0, mutated_range):
+        self.features[start_point + i] = 1 - self.features[i]
   
   @staticmethod
   def crossover(individual_1, individual_2):
@@ -138,8 +147,8 @@ class Population:
       while parent1 == parent2:
           parent2 = self.tournament_selection()
       child1, child2 = Individual.two_points_crossover(parent1, parent2)
-      child1.simple_invert_mutate_with_prob()
-      child2.simple_invert_mutate_with_prob()
+      child1.random_flip_mutate_in_range()
+      child2.random_flip_mutate_in_range()
       child1.calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
       child2.calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
       children.append(child1)
@@ -147,7 +156,7 @@ class Population:
     return children
       
   def get_best(self):
-    # return the best feasibile solution
+    # return the best feasible solution
     sorted_pop = sorted(self.population, key=lambda x: x.fitness, reverse=True)
     for individual in sorted_pop:
       if individual.get_uncovered_count(row_covered_list=self.row_covered_list) == 0:
