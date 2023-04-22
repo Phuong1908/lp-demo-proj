@@ -2,7 +2,7 @@ import numpy as np
 import random
 import copy
 from utils import intersection
-from constants import ALPHA, POPULATION_SIZE, TOURNAMENT_PARTICIPANTS, TOURNAMENT_SELECTION_PROB, MUTATION_PROB, NUM_OF_MUTATED_GENES
+from constants import ALPHA, POPULATION_SIZE, TOURNAMENT_PARTICIPANTS, TOURNAMENT_SELECTION_PROB, MUTATION_PROB, NUM_OF_MUTATED_GENES, CROSSOVER_PROB
 
 class Individual:
   def __init__(self, length):
@@ -75,13 +75,15 @@ class Individual:
   
   @staticmethod
   def crossover(individual_1, individual_2):
-    length = len(individual_1.features)
-    cut_point = random.randint(0, length - 1)
-    first_child = Individual(length=length)
-    second_child = Individual(length=length)
-    first_child.features = np.append(individual_1.features[0:cut_point], individual_2.features[cut_point:length])
-    second_child.features = np.append(individual_2.features[0:cut_point], individual_1.features[cut_point:length])
-    return first_child, second_child
+    if random.random() < CROSSOVER_PROB:
+      length = len(individual_1.features)
+      cut_point = random.randint(0, length - 1)
+      first_child = Individual(length=length)
+      second_child = Individual(length=length)
+      first_child.features = np.append(individual_1.features[0:cut_point], individual_2.features[cut_point:length])
+      second_child.features = np.append(individual_2.features[0:cut_point], individual_1.features[cut_point:length])
+      return first_child, second_child
+    return individual_1, individual_2
   
   @staticmethod
   def two_points_crossover(individual_1, individual_2):
@@ -146,8 +148,8 @@ class Population:
       while parent2 == parent1 or parent2 is None:
           parent2 = self.tournament_selection()
       child1, child2 = Individual.crossover(parent1, parent2)
-      child1.random_flip_mutate_in_range()
-      child2.random_flip_mutate_in_range()
+      child1.simple_invert_mutate_with_prob()
+      child2.simple_invert_mutate_with_prob()
       child1.calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
       child2.calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
       children.append(child1)
