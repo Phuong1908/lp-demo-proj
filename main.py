@@ -16,7 +16,8 @@ if __name__ == "__main__":
   print(f'Max cost: {np.sum(problem.costs)}')
   population = Population.create_initial_population(problem=problem)
   best_invi = None
-  for i in tqdm(range(GENERATIONS)):
+  # for i in tqdm(range(GENERATIONS)):
+  for i in range(GENERATIONS):
 		# evolution phase
     children = population.create_child()
     population.extend(children)
