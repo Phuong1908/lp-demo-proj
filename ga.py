@@ -40,6 +40,26 @@ class Individual:
     if fitness_value <= 0:
       fitness_value = 1
     self.fitness = fitness_value
+    
+  def correcting_solution(self, cost_list, row_covered_list):
+    # Loop through the row covered list
+    # If current row is covered by the solution, do nothing
+    # If not, find the collumn with the minimal cost that covers this row,
+    # and assign the corresponding bit in solution with 1
+    
+    self_cover_row_indexes = np.where(self.features == 1) #return tuple
+    self_cover_rows = list(map(lambda x: x + 1, self_cover_row_indexes[0]))
+    for current_row in row_covered_list:
+      if not intersection(self_cover_rows, current_row):
+        min_cost = float('inf')
+        position = None
+        for col in current_row:
+          if cost_list[col - 1] < min_cost:
+            position = col - 1
+            min_cost = cost_list[col - 1]
+        self.features[position] = 1
+      else:
+        continue
   
   # def calc_fitness(self, cost_list, row_covered_list): #aim to maximize fitness <-> minimize cost
   #   self.fitness =  1 / (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.calc_cost(cost_list=cost_list) + 1)
@@ -159,9 +179,9 @@ class Population:
   def get_best(self):
     # return the best feasible solution
     sorted_pop = sorted(self.population, key=lambda x: x.fitness, reverse=True)
-    for individual in sorted_pop:
-      if individual.get_uncovered_count(row_covered_list=self.row_covered_list) == 0:
-        return individual
+    best = sorted_pop[0]
+    best.correcting_solution(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
+    return best
       
   @staticmethod
   def create_initial_population(problem):
