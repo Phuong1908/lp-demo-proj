@@ -37,8 +37,8 @@ class Individual:
     max_cost_value = np.sum(cost_list)
     self.calc_cost(cost_list)
     fitness_value = max_cost_value - (self.calc_error(cost_list=cost_list, row_covered_list=row_covered_list) + self.cost)
-    if fitness_value < 0:
-      fitness_value = 0
+    if fitness_value <= 0:
+      fitness_value = 1
     self.fitness = fitness_value
   
   # def calc_fitness(self, cost_list, row_covered_list): #aim to maximize fitness <-> minimize cost
