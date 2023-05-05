@@ -27,6 +27,12 @@ class Individual:
       if not intersection(self_cover_rows, row_covered_data):
         count += 1
     self.uncovered_count = count
+    
+  def correct_and_calc_fitness(self, cost_list, row_covered_list):
+    self.correcting_solution(cost_list=cost_list, row_covered_list=row_covered_list)
+    max_cost_value = np.sum(cost_list)
+    self.calc_cost(cost_list)
+    self.fitness = max_cost_value - self.cost
   
   def calc_error(self, cost_list, row_covered_list):
     max_cost = np.max(np.multiply(self.features, cost_list))
@@ -170,8 +176,8 @@ class Population:
       child1, child2 = Individual.crossover(parent1, parent2)
       child1.simple_invert_mutate_with_prob()
       child2.simple_invert_mutate_with_prob()
-      child1.calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
-      child2.calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
+      child1.correct_and_calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
+      child2.correct_and_calc_fitness(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
       children.append(child1)
       children.append(child2)
     return children
@@ -180,7 +186,6 @@ class Population:
     # return the best feasible solution
     sorted_pop = sorted(self.population, key=lambda x: x.fitness, reverse=True)
     best = sorted_pop[0]
-    best.correcting_solution(cost_list=self.cost_list, row_covered_list=self.row_covered_list)
     return best
       
   @staticmethod
@@ -190,7 +195,7 @@ class Population:
     population.row_covered_list = problem.row_covered_list
     for _ in range(POPULATION_SIZE):
       individual = Individual(length=problem.n)
-      individual.calc_fitness(cost_list=population.cost_list, row_covered_list=population.row_covered_list)
+      individual.correct_and_calc_fitness(cost_list=population.cost_list, row_covered_list=population.row_covered_list)
       population.append(individual)
     return population
   
