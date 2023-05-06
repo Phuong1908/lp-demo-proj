@@ -3,6 +3,8 @@ This is the demo project for ***"Solving set covering problem using genetic algo
 **How to run**
 - Run `setup_data.sh` script to download all scp datasets from the OR-library. Data will be downloaded and stored under `/Datasets/raw`.
 - Run `process_data.py` script to processed data. Processed data will be stored under `Datasets/processed`.
+- Install need packages like tdqm,..
+- Run `python3 main.py <problem name>` (ex: `python3 main.py 'scpe1'`) to solve correspoding scp problem.
 
 **Explain project structure**
 - `best_solution.txt`: contains all the optimal solutions for correspoding scp datasets. 
